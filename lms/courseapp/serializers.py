@@ -13,10 +13,23 @@ class CategorySerializer(ModelSerializer):
 
 class CourseSerializer(ModelSerializer):
     category=CategorySerializer(read_only=True)
+    student_enrolled=serializers.SerializerMethodField()    
     class Meta:
         model = Course
         fields = '__all__'
 
+    def get_student_enrolled(self,instance):
+        return instance.get_enrolled_student_count()
+
+    
+    def to_representation(self, instance):
+        data= super().to_representation(instance)
+       
+        request=self.context.get('request')
+        user=request.user
+        course=instance
+        data['is_enrolled']=course.is_user_enrolled(user)
+        return data
 
 class TagSerializer(ModelSerializer):
     course = CourseSerializer(read_only=True)

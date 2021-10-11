@@ -57,12 +57,15 @@ class CourseViewSet(ModelViewSet):
             category=Category.objects.get(pk=category_id)
         except Category.DoesNotExist or ValidationError:
             return Response({'category_id':['category_id is not valid.']},status=HTTP_400_BAD_REQUEST)
-
-        serializer=CourseSerializer(data=course)
+        
+        context={
+            "request":request
+        }
+        serializer=CourseSerializer(data=course,context=context)
         if(serializer.is_valid()):
             courseInstance=Course(**serializer.validated_data,category=category)
             courseInstance.save()
-            return Response(CourseSerializer(courseInstance).data)
+            return Response(CourseSerializer(courseInstance,context=context).data)
 
         return Response(serializer.errors,status=HTTP_400_BAD_REQUEST)
 

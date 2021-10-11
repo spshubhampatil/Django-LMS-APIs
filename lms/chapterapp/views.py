@@ -8,6 +8,8 @@ from rest_framework import status
 from .models import *
 from core.permissions import IsAdminUserOrReadOnly
 import uuid
+from rest_framework.views import APIView
+from orderapp.models import Subscription
 
 # Create your views here.
 @api_view(['GET'])
@@ -57,7 +59,31 @@ class ChapterCreateView(CreateAPIView):
 
     def get_serializer(self,*args, **kwargs):        
         request=self.request
-        serializer= self.serializer_class(data=request.data, context={"request":request})
+        serializer= self.serializer_class(data=request.data, context={"request":request,"all_data":True})
         serializer.is_valid()
         return serializer
+
+
+class ChapterDetailView(APIView):
+    def get(self, request,*args, **kwargs):
+        chapter_id=kwargs.get('pk')
+        user=request.user
+        try:
+            chapter=Chapter.objects.get(pk=chapter_id)
+        except Chapter.DoesNotExist or ValidationError:
+            return Response(status=404)
+
+        context={
+            "all_data":chapter.is_preview,
+            "request":request
+        }
+        
+        if user.is_authenticated:
+            if user.is_superuser:
+                context['all_data']=True
+            else:
+                context['all_data']=chapter.course.is_user_enrolled(user)       
+
+        serializer=ChapterSerializer(chapter,context=context)
+        return Response(serializer.data)
         

@@ -6,6 +6,24 @@ from rest_framework.exceptions import ValidationError
 
 
 
+def changeChapterData(instance):
+    chapter_type=instance.chapter_type    
+    
+    if(chapter_type=='T'):
+        text_chapter=instance.text_chapter
+        instance.text_chapter=TextChapter(title=text_chapter.title, id=text_chapter.id)
+
+    if(chapter_type=='L'):
+        link_chapter=instance.link_chapter
+        instance.link_chapter=LinkChapter(title=link_chapter.title, id=link_chapter.id)
+
+    if(chapter_type=='V'):
+        video_chapter=instance.video_chapter
+        instance.video_chapter=VideoChapter(title=video_chapter.title, id=video_chapter.id)        
+    
+    return instance
+
+
 class TextChapterSerializer(ModelSerializer):
     chapter=serializers.UUIDField(required=False)
     class Meta:
@@ -16,6 +34,7 @@ class TextChapterSerializer(ModelSerializer):
         original_object= super().to_representation(instance)
         original_object.pop('chapter')
         return original_object
+
 
 class HeadingChapterSerializer(ModelSerializer):
     chapter=serializers.UUIDField(required=False)
@@ -28,16 +47,13 @@ class HeadingChapterSerializer(ModelSerializer):
         original_object.pop('chapter')
         return original_object
 
+
 class VideoChapterSerializer(ModelSerializer):
     chapter=serializers.UUIDField(required=False)
     class Meta:
         model=VideoChapter
         fields='__all__'
-
-    def to_representation(self,instance):
-        original_object= super().to_representation(instance)
-        original_object.pop('chapter')
-        return original_object
+    
 
 class LinkChapterSerializer(ModelSerializer):
     chapter=serializers.UUIDField(required=False)
@@ -61,6 +77,17 @@ class ChildChapterSerializer(ModelSerializer):
     class Meta:
         model=Chapter
         fields='__all__'
+    
+    def to_representation(self,instance):
+        all_data=self.context.get("all_data")
+        if not all_data:
+            instance=changeChapterData(instance)
+        data = super().to_representation(instance)
+        course=instance.course
+        user=self.context.get('request').user
+        data['is_enrolled']=course.is_user_enrolled(user)
+        return data      
+    
 
 class ChapterSerializer(ModelSerializer):
     index=serializers.IntegerField(required=False)
@@ -74,9 +101,19 @@ class ChapterSerializer(ModelSerializer):
         model=Chapter
         fields='__all__'
 
+    def to_representation(self,instance):
+        all_data=self.context.get("all_data")
+        if not all_data:
+            instance=changeChapterData(instance)
+        data = super().to_representation(instance)
+        course=instance.course
+        user=self.context.get('request').user
+        data['is_enrolled']=course.is_user_enrolled(user)
+        return data
+
     def get_child_chapters(self, instance):
         childs=instance.child_chapters.all().order_by('index')
-        serializer= ChildChapterSerializer(childs, many=True)
+        serializer= ChildChapterSerializer(childs, many=True,context=self.context)
         return serializer.data
 
     def create(self,validated_data):

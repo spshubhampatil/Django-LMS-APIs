@@ -42,7 +42,7 @@ def api_root(request):
         } ,
         "Order":{
             "Create Order":reverse('orders:create-order',request=request),
-            "Verify Order":reverse('orders:corder-verify',request=request),
+            "Verify Order":reverse('orders:order-verify',request=request),
         }
     }
     return Response(response)

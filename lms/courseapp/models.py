@@ -1,6 +1,8 @@
 from django.db import models
 from django.db.models.fields import UUIDField
 import uuid
+
+
 # Create your models here.
 
 class Category(models.Model):
@@ -31,6 +33,17 @@ class Course(models.Model):
 
     def __str__(self):
         return self.title
+
+    def is_user_enrolled(self,user):
+        from orderapp.models import Subscription
+        if not user.is_authenticated:
+            return False
+        return Subscription.objects.filter(course=self,user=user).count()>0
+
+    def get_student_enrolled_count(self):
+        from orderapp.models import Subscription        
+        return Subscription.objects.filter(course=self).count()
+
 
 
 class Tag(models.Model):
