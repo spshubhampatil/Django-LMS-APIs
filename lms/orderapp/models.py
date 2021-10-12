@@ -21,10 +21,8 @@ class Order(models.Model):
     order_id = models.CharField(max_length=100, null=False)
     payment_id = models.CharField(max_length=100, null=True)
     order_status = models.CharField(max_length=2, default="I",choices=ORDER_STATUS_CHOISES)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')     
-    coupon = models.ForeignKey(Coupon, on_delete=models.CASCADE, related_name='orders',null=True,blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')         
     time=DateTimeField(auto_now_add=True)   
-
 
 
 @receiver(post_save, sender=Order)
@@ -48,7 +46,6 @@ def createSubscription(sender, instance, **kwargs):
         if existingSubscription is None:
             subscription =Subscription(user=order.user,order=order,course=Course(pk=course_pk))
             subscription.save()
-
 
 
 class OrderItem(models.Model):

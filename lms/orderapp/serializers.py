@@ -9,10 +9,10 @@ from rest_framework.response import Response
 from rest_framework import status
 
 
-def validateCouponCode(code):
-    try:
-        coupon=Coupon.objects.get(code=code)
-    except Coupon.DoesNotExist:
+
+def validateCouponCode(code):    
+    count=Coupon.objects.filter(code=code).count()
+    if count == 0:
         return ValidationError("coupon is not valid")
 
 class OrderCreateSerializer(serializers.Serializer):
@@ -35,8 +35,7 @@ class OrderCreateSerializer(serializers.Serializer):
             raise error
 
         return super().validate(attrs)
-            
-
+  
 
 class OrderVerifyDataSerializer(serializers.Serializer):
     razorpay_payment_id= serializers.CharField()
@@ -50,7 +49,6 @@ class OrderItemSerializer(ModelSerializer):
         fields = '__all__'
 
 
-
 class OrderSerializer(ModelSerializer):
     order_id=CharField(max_length=50,required=False)
     user=UserSerializer(read_only=True)
@@ -62,9 +60,7 @@ class OrderSerializer(ModelSerializer):
         fields = '__all__'
 
 
-
 class SubscriptionSerializer(ModelSerializer):
     class Meta:
         model = Subscription
         fields = '__all__'
-

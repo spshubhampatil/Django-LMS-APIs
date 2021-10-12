@@ -1,7 +1,5 @@
-from django.shortcuts import render
-from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework.generics import RetrieveAPIView,ListAPIView
+from rest_framework.generics import ListAPIView
 from rest_framework import status
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAdminUser
@@ -36,5 +34,4 @@ class CouponModelViewSet(ModelViewSet):
     queryset = Coupon.objects.all()
     serializer_class = CouponSerializer
     permission_classes = [IsAdminUser]
-
 

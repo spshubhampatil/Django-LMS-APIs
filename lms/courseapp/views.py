@@ -1,17 +1,11 @@
 from django.core.exceptions import ValidationError
-from django.db.models import query
 from .serializers import *
 from .models import *
-from django.http import response
-from django.shortcuts import render
-from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.status import HTTP_400_BAD_REQUEST
-from rest_framework.parsers import JSONParser
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import  RetrieveUpdateDestroyAPIView
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.permissions import IsAdminUser
 from core.permissions import IsAdminUserOrReadOnly
 
 # Create your views here.
@@ -106,7 +100,7 @@ class CoursesByCategoryView(APIView):
     def get(self, request,category_id):
         try:
             courses=Course.objects.filter(category=Category(pk=category_id))
-            serializer=CourseSerializer(courses,many=True)
+            serializer=CourseSerializer(courses,many=True,context={"request":request})
             return Response(serializer.data)
         except ValidationError:
             return Response({"category_id":["category id is not valid."]},status=HTTP_400_BAD_REQUEST)

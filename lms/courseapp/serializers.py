@@ -1,5 +1,3 @@
-from django.db import models
-from django.db.models import fields
 from rest_framework import serializers
 from .models import *
 from rest_framework.serializers import ModelSerializer
@@ -30,6 +28,7 @@ class CourseSerializer(ModelSerializer):
         course=instance
         data['is_enrolled']=course.is_user_enrolled(user)
         return data
+
 
 class TagSerializer(ModelSerializer):
     course = CourseSerializer(read_only=True)

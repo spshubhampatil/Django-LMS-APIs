@@ -13,4 +13,11 @@ class Coupon(models.Model):
     discount=models.IntegerField()
     active=models.BooleanField(default=True)
     course=models.ForeignKey(Course, on_delete=models.CASCADE,related_name='coupons')    
-    code=models.CharField(max_length=10,unique=True,null=False,default=random_code)
+    code=models.CharField(max_length=10,null=False,default=random_code)
+
+    def __str__(self):
+        return self.code
+
+    @classmethod
+    def is_valid(cls, course, code):
+        return Coupon.objects.filter(course=course,code=code,active=True).count()>0

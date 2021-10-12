@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
@@ -45,26 +44,45 @@ class CreateOrderAPIView(APIView):
             data=serializer.validated_data
             course=data.get('course')
             body_courses=data.get('courses')
+            coupon_code=data.get('coupon')
             courses=[]
             if course:
                 courses=[course]
             if body_courses:
                 courses=body_courses
 
+            if coupon_code is not None:
+                is_coupon_aplicable=True
+                for course in courses:
+                    is_valid = Coupon.is_valid(course,coupon_code)
+                    is_coupon_aplicable = is_coupon_aplicable and is_valid
+                if not is_coupon_aplicable:
+                    return Response({
+                        "coupon":["coupon is not valid for provided course or courses."]
+                    },status=400)
+
             total_price=0
             after_discount_total_price=0
             for course in courses:
                 total_price += course.price
-                sell_price= course.price - (course.price * course.discount * 0.01)
-                after_discount_total_price += sell_price
+                if not coupon_code:
+                    sell_price= course.price - (course.price * course.discount * 0.01)
+                else:
+                    coupon=Coupon.objects.get(code=coupon_code,course=course)
+                    coupon_discount=coupon.discount    
+                    sell_price= course.price - (course.price * coupon_discount * 0.01)            
+                after_discount_total_price += sell_price            
 
             rp_order=self.createRazorPayOrder(request.user,after_discount_total_price)
-
-            order=Order(order_id= rp_order.get('id'),user=user)
+            order=Order(order_id= rp_order.get('id'),user=user)            
             order.save()
 
             for course in courses:
                 order_item=OrderItem(course=course,order=order,price=course.price, discount=course.discount)
+                if coupon_code is not None:
+                    coupon=Coupon.objects.filter(code=coupon_code, course=course)[0]
+                    order_item.coupon=coupon
+                    order_item.discount=coupon.discount     
                 order_item.save()
 
             orderSerializer=OrderSerializer(order)

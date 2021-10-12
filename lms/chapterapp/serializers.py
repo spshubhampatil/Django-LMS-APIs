@@ -1,4 +1,3 @@
-from django.db.models import fields
 from .models import *
 from rest_framework.serializers import ModelSerializer
 from rest_framework import serializers

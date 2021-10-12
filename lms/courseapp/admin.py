@@ -6,7 +6,7 @@ from .models import *
 class courseAdminModel(admin.ModelAdmin):
     model=Course
     list_editable=['active']
-    list_display=['title','active']
+    list_display=['id','title','discount','active']
 
 
 admin.site.register(Category)
