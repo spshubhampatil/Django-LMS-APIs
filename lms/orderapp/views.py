@@ -3,12 +3,13 @@ from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
 from rest_framework import status
 from .serializers import *
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from couponapp.models import Coupon
 from courseapp.models import Course
 from shortuuid import ShortUUID
 from .models import *
 import traceback
+from rest_framework.generics import ListAPIView
 
 KEY="rzp_test_mUysLYnZLb381c"
 SECRET_KEY="3zgKJ7VB1yym5UfAmz4k10dx"
@@ -124,3 +125,29 @@ class VerifyOrderApiView(APIView):
             return Response(OrderSerializer(order).data)
         else:
             return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+
+class SubscriptionListView(ListAPIView):
+    queryset=Subscription.objects.all()
+    serializer_class=SubscriptionSerializer
+    permission_classes=[IsAdminUser]
+    filterset_fields='__all__'
+
+
+class CourseSubscribedByUser(ListAPIView):
+    serializer_class=CourseSerializer
+    permission_classes=[IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        pk=kwargs.get('pk')
+        user=request.user
+        courses= Subscription.objects.filter(user=self.kwargs.get('pk')).values_list('course')
+        self.queryset=Course.objects.filter(pk__in=courses)
+        if not user.is_superuser:      
+            if pk != user.pk:
+                return Response({
+                        "detail": "You are not authorized."
+                        },status=403)           
+
+        return super().get(request, *args, **kwargs)
+

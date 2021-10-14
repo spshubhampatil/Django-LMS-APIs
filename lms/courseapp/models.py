@@ -41,9 +41,8 @@ class Course(models.Model):
         return Subscription.objects.filter(course=self,user=user).count()>0
 
     def get_student_enrolled_count(self):
-        from orderapp.models import Subscription        
+        from orderapp.models import Subscription              
         return Subscription.objects.filter(course=self).count()
-
 
 
 class Tag(models.Model):

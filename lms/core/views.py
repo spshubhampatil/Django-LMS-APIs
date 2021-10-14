@@ -43,6 +43,15 @@ def api_root(request):
         "Order":{
             "Create Order":reverse('orders:create-order',request=request),
             "Verify Order":reverse('orders:order-verify',request=request),
+        },
+        "Subscription":{
+            "Subscription List":reverse('subscriptions:subscription-list',request=request),
+           
+        },
+        "Review":{
+            "Review List":reverse('reviews:reviews-list',request=request),
+            "Review Detail":reverse('reviews:reviews-detail',args=['review-id'],request=request),
+           
         }
     }
     return Response(response)

@@ -3,6 +3,8 @@ from .models import *
 from rest_framework.serializers import ModelSerializer
 
 
+
+
 class CategorySerializer(ModelSerializer):
     class Meta:
         model = Category
@@ -16,8 +18,8 @@ class CourseSerializer(ModelSerializer):
         model = Course
         fields = '__all__'
 
-    def get_student_enrolled(self,instance):
-        return instance.get_enrolled_student_count()
+    def get_student_enrolled(self,instance):        
+        return instance.get_student_enrolled_count()
 
     
     def to_representation(self, instance):

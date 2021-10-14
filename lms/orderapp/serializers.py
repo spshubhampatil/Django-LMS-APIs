@@ -7,6 +7,7 @@ from rest_framework import serializers
 from courseapp.models import Course
 from rest_framework.response import Response
 from rest_framework import status
+from courseapp.serializers import CourseSerializer
 
 
 
@@ -61,6 +62,13 @@ class OrderSerializer(ModelSerializer):
 
 
 class SubscriptionSerializer(ModelSerializer):
+    course=CourseSerializer(read_only=True)
+    order=OrderSerializer(read_only=True)
     class Meta:
         model = Subscription
         fields = '__all__'
+
+    def to_representation(self, instance):
+        json = super().to_representation(instance)
+        json.pop('user')
+        return json
