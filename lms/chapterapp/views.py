@@ -1,7 +1,7 @@
 from .serializers import *
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework.generics import ListAPIView,CreateAPIView,ListCreateAPIView
+from rest_framework.generics import ListAPIView,CreateAPIView,ListCreateAPIView,RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAdminUser
 from rest_framework import status
 from .models import *
@@ -63,7 +63,11 @@ class ChapterCreateView(CreateAPIView):
         return serializer
 
 
-class ChapterDetailView(APIView):
+class ChapterDetailView(RetrieveUpdateDestroyAPIView):
+    queryset=Chapter.objects.all()
+    serializer_class=ChapterSerializer
+    permission_classes=[IsAdminUserOrReadOnly]
+
     def get(self, request,*args, **kwargs):
         chapter_id=kwargs.get('pk')
         user=request.user
