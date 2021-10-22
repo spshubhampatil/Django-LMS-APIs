@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Doubt
+from .models import *
 
 # Register your models here.
 admin.site.register(Doubt)
+admin.site.register(DoubtAnswer)

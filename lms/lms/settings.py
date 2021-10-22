@@ -11,6 +11,11 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
+from datetime import timedelta
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -19,8 +24,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
+APP_SECRET_KEY=os.getenv('SECRET_KEY')
+
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-)%wr+u98b#1gj#*tezqybme50wr^1tsgnao+d+300r!)vbvzr!'
+SECRET_KEY = APP_SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -38,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework_simplejwt',
     'django_filters',
     'core',
     'chapterapp',
@@ -54,7 +62,10 @@ REST_FRAMEWORK = {
         'rest_framework.filters.SearchFilter',
         'rest_framework.filters.OrderingFilter',
         ],
-        'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'DEFAULT_AUTHENTICATION_CLASSES': (        
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
         'PAGE_SIZE': 2
 }
 
@@ -92,6 +103,12 @@ WSGI_APPLICATION = 'lms.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
+DATABASE_NAME=os.getenv('DATABASE_NAME')
+DATABASE_PORT=os.getenv('DATABASE_PORT')
+DATABASE_USER=os.getenv('DATABASE_USER')
+DATABASE_PASSWORD=os.getenv('DATABASE_PASSWORD')
+DATABASE_HOST=os.getenv('DATABASE_HOST')
+
 DATABASES = {
     # 'default': {
     #     'ENGINE': 'django.db.backends.sqlite3',
@@ -99,11 +116,11 @@ DATABASES = {
     # }
     'default':{
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'lms_database',
-        'PORT': 3306,
-        'HOST': 'localhost',
-        'USER': 'root',
-        'PASSWORD': 'root',
+        'NAME': DATABASE_NAME,
+        'PORT':DATABASE_PORT ,
+        'HOST': DATABASE_HOST,
+        'USER': DATABASE_USER,
+        'PASSWORD': DATABASE_PASSWORD,
     }
 }
 
@@ -150,3 +167,9 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+    
+}

@@ -3,12 +3,25 @@ from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework.reverse import reverse
+from rest_framework_simplejwt.views import TokenObtainPairView
+from .serializers import *
 
 # Create your views here.
+
+class MyTokenObtainPairView(TokenObtainPairView):
+    serializer_class = MyTokenObtainPairSerializer
+
+
 @api_view(['GET'])
 def api_root(request):
     response={
         "API ROOT": reverse('api_root', request=request),
+
+        "Auth Token":{
+            "Access Token":reverse('token_obtain_pair',request=request),
+            "Token Refresh":reverse('token_refresh',request=request),
+            "Token Verify":reverse('token_verify',request=request)
+        },
 
         "Course":{
             "Course List": reverse('courses:course-list', request=request),
@@ -50,8 +63,11 @@ def api_root(request):
         },
         "Review":{
             "Review List":reverse('reviews:reviews-list',request=request),
-            "Review Detail":reverse('reviews:reviews-detail',args=['review-id'],request=request),
-           
+            "Review Detail":reverse('reviews:reviews-detail',args=['review-id'],request=request),           
+        },
+        "Doubt":{
+            "Doubts List":reverse('doubts:doubt-list',request=request),
+            "Doubts Detail":reverse('doubts:doubt-detail',args=['doubt-id'],request=request),           
         }
     }
     return Response(response)
