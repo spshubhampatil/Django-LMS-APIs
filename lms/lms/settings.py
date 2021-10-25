@@ -17,6 +17,20 @@ import os
 
 load_dotenv()
 
+DATABASE_NAME=os.getenv('DATABASE_NAME')
+DATABASE_PORT=os.getenv('DATABASE_PORT')
+DATABASE_USER=os.getenv('DATABASE_USER')
+DATABASE_PASSWORD=os.getenv('DATABASE_PASSWORD')
+DATABASE_HOST=os.getenv('DATABASE_HOST')
+PAGE_SIZE=int(os.getenv('PAGE_SIZE',2))
+
+IS_PRODUCTION=False
+
+if os.getenv('IS_PRODUCTION')=='True':
+    IS_PRODUCTION=True
+
+APP_HOST=os.getenv('APP_HOST','127.0.0.1')
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -30,9 +44,9 @@ APP_SECRET_KEY=os.getenv('SECRET_KEY')
 SECRET_KEY = APP_SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = not IS_PRODUCTION
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [APP_HOST]
 
 
 # Application definition
@@ -66,7 +80,7 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-        'PAGE_SIZE': 2
+        'PAGE_SIZE': PAGE_SIZE
 }
 
 MIDDLEWARE = [
@@ -103,11 +117,7 @@ WSGI_APPLICATION = 'lms.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-DATABASE_NAME=os.getenv('DATABASE_NAME')
-DATABASE_PORT=os.getenv('DATABASE_PORT')
-DATABASE_USER=os.getenv('DATABASE_USER')
-DATABASE_PASSWORD=os.getenv('DATABASE_PASSWORD')
-DATABASE_HOST=os.getenv('DATABASE_HOST')
+
 
 DATABASES = {
     # 'default': {
@@ -162,6 +172,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
+MEDIA_URL ='/files/'
+MEDIA_ROOT = BASE_DIR/"files"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
